@@ -19,7 +19,7 @@ class EmbeddingService():
         logger.info(f"Initializing embedding model with model_name {model_name}")
         return SentenceTransformer(model_name)
     
-    def _get_or_create_event():
+    def _get_or_create_event(self):
         try:
             loop = asyncio.get_running_loop()
             logger.info("Find already running event loop")

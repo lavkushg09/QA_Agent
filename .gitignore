@@ -1,4 +1,19 @@
 __pycache__/
 *.pyc
 *.pyo
+*.pyd
+
+# Logs
 *.log
+
+# Local database / vector store
+data/
+
+uploaded_*/
+
+# Environment variables
+.env
+
+# VS Code / IDE settings
+.vscode/
+.idea/

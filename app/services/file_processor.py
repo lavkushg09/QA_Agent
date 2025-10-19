@@ -15,7 +15,7 @@ class FileProcessor:
         self.file_path = file_path
 
     async def write_chuck_into_disk(self, file: File, file_path: str):
-        async with aiofiles(file_path, "wb") as buff:
+        async with aiofiles.open(file_path, "wb") as buff:
             while chunk := await file.read(1024 * 1024):
                 await buff.write(chunk)
         logger.info(
@@ -32,7 +32,7 @@ class FileProcessor:
                 continue
 
 
-            chunk_list = get_text_splitter.split_text(text)
+            chunk_list = get_text_splitter().split_text(text)
             for inx, chunk in enumerate(chunk_list):
                 tasks.append(embedding_service.embed_and_store(chunk, inx, file_name, page_num))
                 if len(tasks) >= 5:
@@ -42,4 +42,4 @@ class FileProcessor:
         if tasks:
             await asyncio.gather(*tasks)
         
-        logger.info("File chunking and embedding completed successfully!",{file_name})
+        logger.info(f"File chunking and embedding completed successfully! {file_name}")
