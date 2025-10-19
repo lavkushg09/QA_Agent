@@ -31,7 +31,7 @@ class EmbeddingService():
             asyncio.set_event_loop(loop)
             return loop
 
-    async def encode_string(self, text: str):
+    def encode_string(self, text: str):
         try:
             encoding = self.model.encode(text)
             logger.info("Text embedding completed successfully!")

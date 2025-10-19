@@ -42,3 +42,24 @@ class VectorDb():
 
         logger.info(f"Successfully chroma db client creation done for mode {db_mode}")
         return cls._client
+
+def get_vector_collection():
+    """
+    Get or create the vector collection for document storage
+    """
+    client = VectorDb.get_client()
+    collection_name = "document_collection"
+    
+    try:
+        # Try to get existing collection
+        collection = client.get_collection(collection_name)
+        logger.info("Returning existing collection")
+    except Exception:
+        # Create new collection if it doesn't exist
+        collection = client.create_collection(
+            name=collection_name,
+            metadata={"description": "Document collection for RAG system"}
+        )
+        logger.info("Created new collection")
+    
+    return collection

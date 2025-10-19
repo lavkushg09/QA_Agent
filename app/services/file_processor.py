@@ -32,7 +32,8 @@ class FileProcessor:
                 continue
 
 
-            chunk_list = get_text_splitter().split_text(text)
+            text_splitter = get_text_splitter()
+            chunk_list = text_splitter.split_text(text)
             for inx, chunk in enumerate(chunk_list):
                 tasks.append(embedding_service.embed_and_store(chunk, inx, file_name, page_num))
                 if len(tasks) >= 5:
