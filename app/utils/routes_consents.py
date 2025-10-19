@@ -1,0 +1,1 @@
+ALLOWED_FILE_CONTENT_TYPE = {"image/png", "image/jpeg", "application/pdf"}
