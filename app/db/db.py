@@ -1,8 +1,9 @@
 from .vector_db.vector_chromadb import VectorDb
 from app.logger import logger
+from .postgres_db.postgres_db import SessionLocal
 
 DB_CLIENTS = {
-    "VECTOR_DB": VectorDb
+    "VECTOR_DB": VectorDb,
 }
 
 
@@ -18,3 +19,11 @@ def get_vector_collection():
     client_instance = get_db_instance("VECTOR_DB")
     logger.info("Vector db client initialize successfully!")
     return client_instance.get_or_create_collection("knowledge_embedding")
+
+
+def get_sql_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()

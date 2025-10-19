@@ -17,3 +17,4 @@ uploaded_*/
 # VS Code / IDE settings
 .vscode/
 .idea/
+*.db

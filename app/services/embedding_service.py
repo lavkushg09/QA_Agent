@@ -16,9 +16,10 @@ class EmbeddingService():
 
     def get_model(self):
         model_name = os.getenv('EMBEDDING_MODEL', 'multi-qa-MiniLM-L6-cos-v1')
-        logger.info(f"Initializing embedding model with model_name {model_name}")
+        logger.info(
+            f"Initializing embedding model with model_name {model_name}")
         return SentenceTransformer(model_name)
-    
+
     def _get_or_create_event(self):
         try:
             loop = asyncio.get_running_loop()
@@ -29,10 +30,12 @@ class EmbeddingService():
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
             return loop
-        
+
     async def encode_string(self, text: str):
         try:
+            print("===============",text)
             encoding = self.model.encode(text)
+            print("------------------", encoding)
             logger.info("Text embedding completed successfully!")
             return {
                 "success": True,
@@ -57,4 +60,12 @@ class EmbeddingService():
         )
         logger.info("Successfully text embedded and stored in collection!")
 
-
+    async def retrieve_top_k_embedding(self, query_embedding, tok_k=3):
+        results = self.vector_collection.query(
+            query_embeddings=[query_embedding.tolist()],
+            n_results=tok_k,
+            include=['distances', 'documents', 'metadatas']
+        )
+        retrieved_texts = results['documents'][0]
+        print(retrieved_texts)
+        return "\n".join(retrieved_texts)

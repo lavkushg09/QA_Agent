@@ -1,11 +1,15 @@
 from typing import Union
-
 from fastapi import FastAPI
 from app.routes import document_upload
+from app.routes import q_a_query
+from app.db.postgres_db import Base, engine
 
-app = FastAPI(title="Q%A Chat boat!")
+Base.metadata.create_all(bind=engine)
+
+app = FastAPI(title="Q&A Chat boat!")
 
 app.include_router(document_upload.router, prefix="/upload", tags=["Upload"])
+app.include_router(q_a_query.router, prefix="/ask", tags=["ask"])
 
 
 @app.get('/')

@@ -31,6 +31,13 @@ async def upload_knowledge_base(file: UploadFile = File(...)):
     file_path = os.path.join(UPLOAD_DIR, file.filename)
     if os.path.exists(file_path):
         logger.info("File path already exists")
+        return JSONResponse(
+            status_code=status.HTTP_406_NOT_ACCEPTABLE,
+            content={
+                "status":"Failed",
+                "message": "Duplicate file name not allowed for now. Please change the name and try again."
+            }
+        )
 
     try:
         embedding_service = EmbeddingService()

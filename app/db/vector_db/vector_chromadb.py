@@ -1,7 +1,7 @@
 import chromadb
 from chromadb import Client, PersistentClient, HttpClient
 import os
-from .config import settings
+from ..config import settings
 from typing import Optional
 from app.logger.logger_setup import logger
 
