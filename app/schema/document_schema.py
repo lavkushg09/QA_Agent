@@ -5,7 +5,7 @@ class DocumentMetadataCreate(BaseModel):
     document_name: str
     source: str | None = None
     author: str | None = None
-    chunk_ids: str | None = []
+    chunk_ids: str | None = None
     description: str | None = None
 
 class DocumentMetadataResponse(DocumentMetadataCreate):

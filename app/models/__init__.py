@@ -1,1 +1,1 @@
-from ..schema.ask_query_schema import AskQueryRequest
+from .document_model import *

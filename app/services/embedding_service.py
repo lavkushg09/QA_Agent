@@ -33,9 +33,7 @@ class EmbeddingService():
 
     async def encode_string(self, text: str):
         try:
-            print("===============",text)
             encoding = self.model.encode(text)
-            print("------------------", encoding)
             logger.info("Text embedding completed successfully!")
             return {
                 "success": True,
