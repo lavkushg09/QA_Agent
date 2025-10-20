@@ -6,13 +6,13 @@ A FastAPI-based service to upload PDF documents, chunk and embed them into a vec
 - Upload PDF files and persist metadata in SQL (default SQLite; Postgres optional)
 - Chunk, embed, and store vectors in Chroma (persistent or client/server)
 - Query with top-k context retrieval and LLM-generated answers
-- Simple, production-ready FastAPI structure with logging and CORS
+- Simple, production-ready FastAPI structure with logging
 
 ---
 
 ## Prerequisites
 - Python 3.13 (project venv already included as `venv/`)
-- pip
+- uv (recommended) or pip
 - Optional: Postgres (if not using SQLite)
 - Optional: [Ollama](https://ollama.com) running locally if you want on-device LLMs
 
@@ -20,20 +20,31 @@ A FastAPI-based service to upload PDF documents, chunk and embed them into a vec
 
 ## Quick Start
 
-1) Create and activate a virtual environment (if you’re not using the bundled one):
+### Option A) Using uv (recommended)
+
+1) Install uv (one-time):
 
 ```bash
-python3 -m venv venv
-source venv/bin/activate
+# via pipx (recommended)
+pipx install uv
+# or via pip
+pip install --user uv
 ```
 
-2) Install dependencies:
+2) Create a virtual environment (managed by uv):
 
 ```bash
-pip install -r requirements.txt
+uv venv
+source .venv/bin/activate
 ```
 
-3) Configure environment (create `.env` in repo root as needed):
+3) Install dependencies with uv pip:
+
+```bash
+uv pip install -r requirements.txt
+```
+
+4) Configure environment (create `.env` in repo root as needed):
 
 ```bash
 # Database
@@ -60,42 +71,33 @@ LLM_MODEL=llama3.2:1b                 # example model name for Ollama
 Notes:
 - All settings are loaded via `pydantic-settings` from `.env` and have sane defaults. See `app/db/config.py` for exact names.
 
-4) Run the server:
+5) Run the server:
 
 ```bash
-uvicorn app.main:app --reload
+uv run uvicorn app.main:app --reload
 ```
 
 The API will be available at `http://127.0.0.1:8000` and docs at `http://127.0.0.1:8000/docs`.
 
----
+### Option B) Using pip (alternative)
 
-## Project Structure
+1) Create and activate a virtual environment:
 
-```text
-app/
-  main.py                       # FastAPI app and router wiring
-  routes/
-    document_upload.py          # Upload & process PDFs
-    query.py                    # Ask questions against the KB
-  services/
-    file_processor.py           # PDF reading & chunking
-    embedding_service.py        # Embedding provider
-    rag_service.py              # Retrieval + LLM orchestration
-    llm/
-      ollam_llm.py              # Ollama LLM wrapper
-      base_llm.py               # LLM base interface
-  db/
-    config.py                   # Settings from .env
-    postgres_db/postgres_db.py  # SQLAlchemy engine/session
-    vector_db/vector_chromadb.py# Chroma client/collection
-  models/                       # SQLAlchemy models
-  crud/                         # DB CRUD for metadata
-  schema/                       # Pydantic schemas
-  utils/                        # Helpers & constants
-data/chroma/                    # Chroma persistent directory (if using persistent mode)
-uploaded_pdfs/                  # Uploaded PDFs
-knowledge_base_local.db         # SQLite DB (default)
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+2) Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+3) Run the server:
+
+```bash
+uvicorn app.main:app --reload
 ```
 
 ---
@@ -104,7 +106,7 @@ knowledge_base_local.db         # SQLite DB (default)
 
 ### 1) Upload Knowledge Base
 - Method: POST
-- Path: `/upload/` (supports `/upload` too)
+- Path: `/upload/`
 - Consumes: `multipart/form-data`
 
 Form fields:
@@ -198,30 +200,12 @@ ollama serve
 
 Then start the API as usual. The service will call Ollama locally.
 
----
-
-## Troubleshooting
-
-- Multipart 400 / boundary errors
-  - Ensure you send `multipart/form-data` with a file field named `file`.
-  - Do not set the `Content-Type` header manually in curl/clients; let the tool set the boundary. Use `-F` with curl as shown above.
-  - Both `/upload` and `/upload/` are supported.
-
-- CORS issues in the browser
-  - CORS is enabled for `*` in `app/main.py`. Adjust `allow_origins` as needed.
-
-- No answers to queries
-  - Ensure you have uploaded at least one PDF successfully.
-  - Confirm Chroma has data under `data/chroma/` (persistent mode).
-  - Verify your LLM is reachable (Ollama running) and `LLM_MODEL` exists.
-
----
 
 ## Development
 
 Run with live reload:
 ```bash
-uvicorn app.main:app --reload
+uv run uvicorn app.main:app --reload
 ```
 
 Code layout aims for clarity and separation of concerns. Linting is enforced in-editor; adjust to your preferences.
