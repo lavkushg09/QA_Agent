@@ -1,0 +1,21 @@
+services:
+  app:
+    build: .
+    container_name: document_agent_app
+    ports:
+      - "8000:8000"
+    environment:
+      # Use SQLite and local persistent Chroma directory by default
+      - DB_TYPE=${DB_TYPE:-sqlite}
+      - SQLITE_PATH=${SQLITE_PATH:-knowledge_base_local.db}
+      - CHROMA_MODE=${CHROMA_MODE:-persistent}
+      - CHROMA_DB_PATH=${CHROMA_DB_PATH:-data/chroma}
+      - LLM_MODEL=${LLM_MODEL:-llama3.2:1b}
+    volumes:
+      - ./uploaded_pdfs:/app/uploaded_pdfs
+      - ./data/chroma:/app/data/chroma
+      - ./logs:/app/logs
+      - ./.env:/app/.env:ro
+    restart: unless-stopped
+
+

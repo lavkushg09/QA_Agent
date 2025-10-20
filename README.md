@@ -208,6 +208,37 @@ Run with live reload:
 uv run uvicorn app.main:app --reload
 ```
 
+---
+
+## Docker
+
+### Build and run with Docker
+
+```bash
+# Build image
+docker build -t document-agent:latest .
+
+# Run container (mounts data and sets default env)
+docker run --name document-agent \
+  -p 8000:8000 \
+  -v $(pwd)/uploaded_pdfs:/app/uploaded_pdfs \
+  -v $(pwd)/data/chroma:/app/data/chroma \
+  -v $(pwd)/logs:/app/logs \
+  --env-file .env \
+  document-agent:latest
+```
+
+API will be at `http://127.0.0.1:8000`.
+
+### Using docker-compose (minimal)
+
+```bash
+docker compose up --build
+```
+
+This starts a single service:
+- app: FastAPI server on port 8000, using SQLite and local persistent Chroma directory mounted from the host
+
 Code layout aims for clarity and separation of concerns. Linting is enforced in-editor; adjust to your preferences.
 
 ---
