@@ -4,6 +4,7 @@ import json
 from dotenv import load_dotenv
 from app.logger import logger
 from app.db.vector_db.vector_chromadb import get_vector_collection
+from .llm.ollam_llm import OllamaLLm
 
 load_dotenv()
 
@@ -11,8 +12,9 @@ load_dotenv()
 class QueryRunner:
     def __init__(self):
         self.vector_collection = None
-        self.ollama_url = "http://localhost:11434/api/generate"
+        self.llm_service = OllamaLLm()
         self._initialize_vectorstore()
+        self.ollama_url = "http://localhost:11434/api/generate"
 
     def _initialize_vectorstore(self):
         try:
@@ -83,7 +85,13 @@ class QueryRunner:
                     """
 
             # Get answer from LLM
-            answer = self._query_ollama(prompt)
+            # answer = self._query_ollama(prompt)
+            answer = self.llm_service.make_llm_call(prompt, os.getenv("LLM_MODEL","llama3.2:1b"))
+
+
+            print(answer)
+            print("=======================", prompt)
+            # print(answer1)
 
             # Prepare context metadata
             context_list = []
