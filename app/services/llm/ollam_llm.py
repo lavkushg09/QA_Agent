@@ -9,7 +9,7 @@ class OllamaLLm(BaseLLmService):
     def __init__(self, ollama_url: str = None):
         super().__init__()
         self.ollama_url = ollama_url or os.getenv(
-            "O_LLAMA_URL", "http://localhost:11434/api/generate"
+            "O_LLAMA_URL", "http://localhost:11434"
         )
 
     def configure_llm(self, model_name: str = "llama3", stream: bool = False) -> dict:
@@ -25,7 +25,7 @@ class OllamaLLm(BaseLLmService):
         payload["prompt"] = prompt.strip()
         try:
             print(f"{self.ollama_url} xxxxx")
-            response = requests.post(self.ollama_url, json=payload)
+            response = requests.post(f"{self.ollama_url}/api/generate", json=payload)
             response.raise_for_status()
             data = response.json()
             return data.get("response", "").strip()

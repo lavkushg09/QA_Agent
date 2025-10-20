@@ -11,6 +11,7 @@ services:
       - CHROMA_MODE=${CHROMA_MODE:-persistent}
       - CHROMA_DB_PATH=${CHROMA_DB_PATH:-data/chroma}
       - LLM_MODEL=${LLM_MODEL:-llama3.2:1b}
+      - O_LLAMA_URL=${O_LLAMA_URL:-http://host.docker.internal:11434}
     volumes:
       - ./uploaded_pdfs:/app/uploaded_pdfs
       - ./data/chroma:/app/data/chroma

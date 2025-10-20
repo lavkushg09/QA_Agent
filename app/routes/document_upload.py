@@ -71,10 +71,10 @@ async def upload_knowledge_base(file: UploadFile = File(...),
         )
 
         # this will use for more concise filter for user query
-        db_ins = create_document(
-            db=db,
-            doc=doc_data
-        )
+        # db_ins = create_document(
+        #     db=db,
+        #     doc=doc_data
+        # )
         logger.info(f"Document metadata successfully created in DB.")
 
         # writing file into dist
