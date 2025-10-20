@@ -5,7 +5,9 @@ import os
 from app.logger import logger
 import asyncio
 from app.utils import get_text_splitter
-# from langchain.text_splitter import RecursiveCharacterTextSplitter
+from dotenv import load_dotenv
+
+load_dotenv()
 
 UPLOAD_DIR = "uploaded_pdfs"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
@@ -24,8 +26,16 @@ class FileProcessor:
 
 
     async def process_pdf_file(self, file_path:str, file_name:str, embedding_service):
+        """
+        Process a PDF file: extract text by page, chunk it, and embed each chunk asynchronously.
+        Args:
+            file_path (str): Path to the PDF file.
+            file_name (str): Name of the PDF file.
+            embedding_service: Service object with `embed_and_store` method.
+        """
         doc = fitz.open(file_path)
         tasks = []
+        batch_size = os.getenv('FILE_BATCH_PROCESSING_SIZE',10)
         for page_num, page in enumerate(doc):
             text = page.get_text("text").strip()
             if not text:
@@ -36,7 +46,7 @@ class FileProcessor:
             chunk_list = text_splitter.split_text(text)
             for inx, chunk in enumerate(chunk_list):
                 tasks.append(embedding_service.embed_and_store(chunk, inx, file_name, page_num))
-                if len(tasks) >= 5:
+                if len(tasks) >= int(batch_size):
                     await asyncio.gather(*tasks)
                     tasks = []
             

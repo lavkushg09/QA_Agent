@@ -1,5 +1,5 @@
 import os
-from fastapi import APIRouter, UploadFile, File, status, Form, HTTPException, Depends
+from fastapi import APIRouter, UploadFile, File, status, Form, Depends
 from app.utils import routes_consents
 from app.logger import logger
 from app.services import EmbeddingService
@@ -7,7 +7,7 @@ from app.services import FileProcessor
 from app.logger import logger
 from fastapi.responses import JSONResponse
 from typing import Optional
-from app.crud import create_document, get_documents
+from app.crud import create_document
 from app.schema import DocumentMetadataCreate
 from app.db import get_sql_db
 UPLOAD_DIR = "uploaded_pdfs"
@@ -21,7 +21,21 @@ router = APIRouter()
 async def upload_knowledge_base(file: UploadFile = File(...),
                                 document_name: str = Form(...),
                                 author: Optional[str] = Form(None),
-                                source: Optional[str] = Form(None), db=Depends(get_sql_db)):
+                                source: Optional[str] = Form(None),
+                                db=Depends(get_sql_db)):
+    logger.info(
+        f"Received file upload request: {file.filename}, content_type: {file.content_type}")
+
+    if not file.filename:
+        logger.error("No filename provided in upload")
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={
+                "status": "Failed",
+                "message": "No filename provided in the upload"
+            }
+        )
+
     if file.content_type not in routes_consents.ALLOWED_FILE_CONTENT_TYPE:
         logger.warning(
             "Given media type is not supported currently.",
@@ -56,14 +70,17 @@ async def upload_knowledge_base(file: UploadFile = File(...),
             file_path=file_path
         )
 
+        # this will use for more concise filter for user query
         db_ins = create_document(
             db=db,
             doc=doc_data
         )
         logger.info(f"Document metadata successfully created in DB.")
-        print(db_ins)
 
+        # writing file into dist
         await file_processor.write_chuck_into_disk(file, file_path)
+
+        # processing file in chunk and embedding and storing in vector db
         await file_processor.process_pdf_file(file_path, file.filename, embedding_service)
 
         return JSONResponse(
@@ -76,11 +93,13 @@ async def upload_knowledge_base(file: UploadFile = File(...),
         )
     except Exception as err:
         logger.error("Knowledge base update failed", exc_info=err)
+        error_str = str(err)
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content={
                 "status": "Failed",
                 "message": "Knowledge base update failed",
-                "file_name": file.filename
+                "file_name": file.filename if file else "unknown",
+                "error": error_str
             }
         )
